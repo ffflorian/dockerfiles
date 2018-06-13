@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:stretch
 RUN apt-get update
 RUN apt-get install -y curl git make g++ alien g++-multilib libc6-dev
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -

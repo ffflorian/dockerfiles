@@ -54,10 +54,12 @@ else
 
   CONTAINER_NAME="wire-desktop-debian"
 
-  if [ ! "$(docker ps -a | grep ${CONTAINER_NAME})" ]; then
-    docker build -t "${CONTAINER_NAME}" .
-    docker run --name "${CONTAINER_NAME}" -e REPOSITORY="${REPOSITORY}" -e BRANCH="${BRANCH}" "${CONTAINER_NAME}" "/run.sh"
+  docker build -t "${CONTAINER_NAME}" .
+
+  if [ "$(docker ps -a | grep "${CONTAINER_NAME}")" ]; then
+    docker rm "${CONTAINER_NAME}" > /dev/null
   fi
-  docker start "${CONTAINER_NAME}"
-  docker cp "${CONTAINER_NAME}:/wire-desktop/wrap/dist/." "./dist/"
+
+  docker run --name "${CONTAINER_NAME}" -e REPOSITORY="${REPOSITORY}" -e BRANCH="${BRANCH}" "${CONTAINER_NAME}" "/run.sh"
+  docker cp "${CONTAINER_NAME}:/wire-desktop/wrap/dist/wire*" "./dist/"
 fi

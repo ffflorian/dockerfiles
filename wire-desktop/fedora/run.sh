@@ -56,10 +56,10 @@ else
 
   docker build -t "${CONTAINER_NAME}" .
 
-  if [ ! "$(docker ps -a | grep ${CONTAINER_NAME})" ]; then
-    docker rm "${CONTAINER_NAME}"
+  if [ "$(docker ps -a | grep "${CONTAINER_NAME}")" ]; then
+    docker rm "${CONTAINER_NAME}" > /dev/null
   fi
 
   docker run --name "${CONTAINER_NAME}" -e REPOSITORY="${REPOSITORY}" -e BRANCH="${BRANCH}" "${CONTAINER_NAME}" "/run.sh"
-  docker cp "${CONTAINER_NAME}:/wire-desktop/wrap/dist/." "./dist/"
+  docker cp "${CONTAINER_NAME}:/wire-desktop/wrap/dist/wire*" "./dist/"
 fi

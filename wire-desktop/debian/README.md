@@ -1,4 +1,4 @@
-# Build wire-desktop on Debian Jessie
+# Build wire-desktop on Debian Stretch
 
 ```
 ./run.sh
