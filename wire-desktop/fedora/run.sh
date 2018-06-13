@@ -6,37 +6,33 @@ SCRIPT_NAME="${0##*/}"
 
 _print_usage() {
 cat <<EOF
-Usage: ${SCRIPT_NAME} <repository> [-b <branch>]
+Usage: ${SCRIPT_NAME} [-r <repository>] [-b <branch>]
 
 Switches:
- --branch (-b)   Use a different branch instead of the default one
-
-Example: ${SCRIPT_NAME} https://github.com/ffflorian/ntpclient.git
+ --repository (-r)   Use a different repository instead of the default one
+ --branch     (-b)   Use a different branch instead of the default one
 EOF
 }
 
 if [ -f "/.dockerenv" ]; then
-  TMP_DIR="$(mktemp -d -p .)"
-
   echo "Cloning from ${REPOSITORY} ..."
 
-  git clone -q "${REPOSITORY}" "${TMP_DIR}"
-  cd "${TMP_DIR}"
+  git clone -q "${REPOSITORY}" "wire-desktop"
+  cd "wire-desktop"
 
   if [ ! -z "${BRANCH}" ]; then
     git checkout "${BRANCH}"
   fi
 
-  if [ -r "yarn.lock" ]; then
-    yarn
-    yarn test
-  else
-    npm install --unsafe-perm
-    npm run test
-  fi
+  npm install --unsafe-perm
+  npm run build:linux
 else
   while (( ${#} )); do
     case "${1}" in
+      -r|--repository )
+        export REPOSITORY="${2}"
+        shift 2
+        ;;
       -b|--branch )
         export BRANCH="${2}"
         shift 2
@@ -49,22 +45,21 @@ else
         _print_usage
         exit 1
         ;;
-      * )
-        export REPOSITORY="${1}"
-        shift 1
-        ;;
     esac
   done
 
   if [ -z "${REPOSITORY}" ]; then
-    echo "No repository specified!"
-    _print_usage
-    exit 1
+    REPOSITORY="https://github.com/wireapp/wire-desktop.git"
   fi
 
-  CONTAINER_NAME="nodejs10"
+  CONTAINER_NAME="wire-desktop-fedora"
 
   docker build -t "${CONTAINER_NAME}" .
+
+  if [ ! "$(docker ps -a | grep ${CONTAINER_NAME})" ]; then
+    docker rm "${CONTAINER_NAME}"
+  fi
+
   docker run --name "${CONTAINER_NAME}" -e REPOSITORY="${REPOSITORY}" -e BRANCH="${BRANCH}" "${CONTAINER_NAME}" "/run.sh"
-  docker cp "${CONTAINER_NAME}:/run.sh" ./run2.sh
+  docker cp "${CONTAINER_NAME}:/wire-desktop/wrap/dist/." "./dist/"
 fi
