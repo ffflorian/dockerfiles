@@ -1,5 +1,5 @@
 # Node.js 10 Dockerfile
 
 ```
-./run.sh --repository "<repository URL>" [--branch "<branch>"]
+./run.sh "<repository URL>" [--branch "<branch>"]
 ```

@@ -2,6 +2,19 @@
 
 set -e
 
+SCRIPT_NAME="${0##*/}"
+
+_print_usage() {
+cat <<EOF
+Usage: ${SCRIPT_NAME} <repository> [-b <branch>]
+
+Switches:
+ --branch (-b)   Use a different branch instead of the default one
+
+Example: ${SCRIPT_NAME} https://github.com/ffflorian/ntpclient.git
+EOF
+}
+
 if [ -f "/.dockerenv" ]; then
   TMP_DIR="$(mktemp -d -p .)"
 
@@ -14,15 +27,16 @@ if [ -f "/.dockerenv" ]; then
     git checkout "${BRANCH}"
   fi
 
-  yarn
-  yarn test
+  if [ -r "yarn.lock" ]; then
+    yarn
+    yarn test
+  else
+    npm install --unsafe-perm
+    npm run test
+  fi
 else
   while (( ${#} )); do
     case "${1}" in
-      -r|--repository )
-        export REPOSITORY="${2}"
-        shift 2
-        ;;
       -b|--branch )
         export BRANCH="${2}"
         shift 2
@@ -32,13 +46,19 @@ else
         ;;
       -* )
         echo "Unknown command '${1}'!"
+        _print_usage
         exit 1
+        ;;
+      * )
+        export REPOSITORY="${1}"
+        shift 1
         ;;
     esac
   done
 
   if [ -z "${REPOSITORY}" ]; then
     echo "No repository specified!"
+    _print_usage
     exit 1
   fi
 
