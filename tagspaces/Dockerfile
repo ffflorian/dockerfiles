@@ -7,7 +7,7 @@ RUN set -ex; \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/tagspaces/tagspaces.git && \
+RUN git clone --depth 1 -b v3.1.1 https://github.com/tagspaces/tagspaces.git && \
     cd tagspaces && \
     yarn && \
     yarn install-ext
