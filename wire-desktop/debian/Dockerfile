@@ -1,7 +1,8 @@
-FROM debian:jessie
-RUN apt-get update
-RUN apt-get install -y alien curl git make g++ g++-multilib libc6-dev libreadline6
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
-RUN apt-get install -y nodejs
-RUN npm i -g npm@latest
+FROM node:10-slim
+
+RUN set -ex; \
+    apt-get update && \
+    apt-get install --no-install-recommends -y \
+    alien curl git make g++ g++-multilib libc6-dev libreadline6
+
 COPY run.sh /
