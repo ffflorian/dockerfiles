@@ -9,8 +9,8 @@ RUN set -ex; \
 
 RUN git clone --depth 1 -b v3.1.1 https://github.com/tagspaces/tagspaces.git && \
     cd tagspaces && \
-    yarn && \
-    yarn install-ext
+    yarn --network-timeout 100000 install && \
+    yarn --network-timeout 100000 install-ext
 
 WORKDIR /tagspaces
 
